@@ -1,11 +1,16 @@
 package com.keto.login.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,5 +90,35 @@ public class UserService {
 		return productsOrdered;
 	}
 	
-	
+	public File generateOrderReport() {
+		List<Orders> ordersList = ordersRepository.findAll();
+		String csv = ordersList.stream()
+        .map(Orders::toCsvRow)
+        .collect(Collectors.joining(System.getProperty("line.separator")));
+		
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userName = ((UserDetails)principal).getUsername();
+		File report=new File(userName+"_order_report.csv");
+		try (PrintWriter writer = new PrintWriter(report)) {
+
+		      StringBuilder sb = new StringBuilder();
+		      sb.append("id");
+		      sb.append(',');
+		      sb.append("Details");
+		      sb.append(",");
+		      sb.append("Time");
+		      sb.append(',');
+		      sb.append("Amount");
+		      sb.append('\n');
+		      sb.append(csv);
+
+		      writer.write(sb.toString());
+
+		      
+
+		    } catch (FileNotFoundException e) {
+		      System.out.println(e.getMessage());
+		    }
+		return report;
+	}
 }

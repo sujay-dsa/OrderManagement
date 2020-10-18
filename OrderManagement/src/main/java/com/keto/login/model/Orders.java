@@ -2,6 +2,8 @@ package com.keto.login.model;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,5 +49,10 @@ public class Orders {
     @JoinTable(name = "order_products", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
     private List<Product> products;
 
-
+    public String toCsvRow() {
+        return Stream.of(Long.toString(orderId), orderDetais, orderDate.toString(), Double.toString(amount))
+                .map(value -> value.replaceAll("\"", "\"\""))
+                .map(value -> Stream.of("\"", ",").anyMatch(value::contains) ? "\"" + value + "\"" : value)
+                .collect(Collectors.joining(","));
+    }
 }
