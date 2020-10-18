@@ -98,22 +98,7 @@ public class LoginController {
         return modelAndView;
     }
     
-    @GetMapping(value="/api/createorder")
-    public String createDummyOrder() {
-    	List<Product> productList = userService.getProducts();
-    	Product duplicateProduct = userService.getProducts().get(0);
-    	productList.add(duplicateProduct);
-    	Double totalPrice = productList.stream().mapToDouble(x -> x.getPrice()).sum();
-		Orders orders = Orders.builder()
-    					.products(productList)
-    					.orderDetais("dummy order")
-    					.orderDate(new Timestamp(System.currentTimeMillis()))
-    					.amount(totalPrice)
-    					.build();//
-		userService.saveDummyOrder(orders);
-    			
-    	return "success";
-    }
+
 
 
 }
